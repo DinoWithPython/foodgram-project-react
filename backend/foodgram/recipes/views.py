@@ -115,7 +115,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         shopping_cart = ShoppingCart.objects.filter(user=self.request.user)
         recipes = [item.recipe.id for item in shopping_cart]
-        buy_list = RecipeIngredients.objects.filter(
+        buy = RecipeIngredients.objects.filter(
             recipe__in=recipes
         ).values(
             'ingredient'
@@ -123,16 +123,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
             amount=Sum('amount')
         )
 
-        buy_list_text = 'Список покупок с сайта Foodgram:\n'
-        for item in buy_list:
+        purchased = ['Список покупок:',]
+        for item in buy:
             ingredient = Ingredient.objects.get(pk=item['ingredient'])
             amount = item['amount']
-            buy_list_text += (
-                f'{ingredient.name}, {amount} '
-                f'{ingredient.unit_of_measurement}\n'
-            )
+            purchased.append(
+                f'{ingredient.name}: {amount}, '
+                f'{ingredient.unit_of_measurement}'
+                )
+        purchased_in_file = '\n'.join(purchased)
 
-        response = HttpResponse(buy_list_text, content_type="text/plain")
+        response = HttpResponse(purchased_in_file, content_type="text/plain")
         response['Content-Disposition'] = (
             'attachment; filename=shopping-list.txt'
         )
