@@ -4,8 +4,7 @@ from django.db import models
 
 from ingredients.models import Ingredient
 from tags.models import Tag
-
-User = get_user_model()
+from users.models import User
 
 
 class Recipe(models.Model):
