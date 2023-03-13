@@ -13,7 +13,6 @@ from .permissions import IsAuthorOrAdminPermission
 from .serializers import (RecipeCreateUpdateSerializer, RecipeSerializer,
                           ShortRecipeSerializer)
 from ingredients.models import Ingredient
-from users.pagination import CustomPageNumberPagination
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -21,7 +20,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrAdminPermission,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    pagination_class = CustomPageNumberPagination
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
