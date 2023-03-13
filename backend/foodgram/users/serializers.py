@@ -12,6 +12,12 @@ class CustomUserSerializer(UserSerializer):
         method_name='get_is_subscribed'
     )
 
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name', 'email',
+                  'is_subscribed')
+
+
     def get_is_subscribed(self, obj):
         user = self.context['request'].user
 
@@ -20,10 +26,7 @@ class CustomUserSerializer(UserSerializer):
 
         return Subscription.objects.filter(user=user, author=obj).exists()
 
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'first_name', 'last_name', 'email',
-                  'is_subscribed')
+
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -42,12 +45,15 @@ class SubscriptionSerializer(CustomUserSerializer):
         method_name='get_recipes_count'
     )
 
-    def get_srs(self):
-        from recipes.serializers import ShortRecipeSerializer
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name', 'email',
+                  'is_subscribed', 'recipes', 'recipes_count')
 
-        return ShortRecipeSerializer
 
     def get_recipes(self, obj):
+        """Получение списка рецептов автора."""
+        from recipes.serializers import ShortRecipeSerializer
         author_recipes = Recipe.objects.filter(author=obj)
 
         if 'recipes_limit' in self.context.get('request').GET:
@@ -55,7 +61,7 @@ class SubscriptionSerializer(CustomUserSerializer):
             author_recipes = author_recipes[:int(recipes_limit)]
 
         if author_recipes:
-            serializer = self.get_srs()(
+            serializer = ShortRecipeSerializer(
                 author_recipes,
                 context={'request': self.context.get('request')},
                 many=True
@@ -67,7 +73,3 @@ class SubscriptionSerializer(CustomUserSerializer):
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj).count()
 
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'first_name', 'last_name', 'email',
-                  'is_subscribed', 'recipes', 'recipes_count')
