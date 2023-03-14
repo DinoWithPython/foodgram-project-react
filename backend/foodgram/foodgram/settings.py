@@ -148,7 +148,7 @@ REST_FRAMEWORK = {
     ],
     'SEARCH_PARAM': 'name',
     'DEFAULT_PAGINATION_CLASS':
-        'api.pagination.LimitPagination',
+        'users.pagination.LimitPagination',
     'PAGE_SIZE': 6,
 }
 
