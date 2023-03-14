@@ -22,7 +22,7 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscriptions(self, request):
         user = self.request.user
-        user_subscriptions = user.subscribes.all()
+        user_subscriptions = user.follower.all()
         authors = [item.author.id for item in user_subscriptions]
         queryset = User.objects.filter(pk__in=authors)
         paginated_queryset = self.paginate_queryset(queryset)

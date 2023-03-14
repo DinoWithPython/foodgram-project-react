@@ -8,3 +8,4 @@ from .models import Tag
 class TagAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'color', 'slug')
     search_fields = ('name',)
+    empty_value_display = '-пусто-'

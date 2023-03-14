@@ -1,60 +1,31 @@
-from distutils.util import strtobool
+from django_filters import ModelMultipleChoiceFilter
 
-from django_filters import rest_framework
+from django_filters.rest_framework import FilterSet, filters
 
-from .models import Favorite, Recipe, ShoppingCart
+from .models import Recipe
 from tags.models import Tag
-
-CHOICES = (
-    ('0', 'False'),
-    ('1', 'True')
-)
+from users.models import User
 
 
-class RecipeFilter(rest_framework.FilterSet):
-    is_favorited = rest_framework.ChoiceFilter(
-        choices=CHOICES,
-        method='is_favorited_method'
-    )
-    is_in_shopping_cart = rest_framework.ChoiceFilter(
-        choices=CHOICES,
-        method='is_in_shopping_cart_method'
-    )
-    author = rest_framework.NumberFilter(
-        field_name='author',
-        lookup_expr='exact'
-    )
-    tags = rest_framework.ModelMultipleChoiceFilter(
+class RecipeFilter(FilterSet):
+    is_favorited = filters.BooleanFilter(method='is_favorited_method')
+    is_in_shopping_cart = filters.BooleanFilter(method='is_in_shopping_cart_method')
+    author = filters.ModelChoiceFilter(queryset=User.objects.all())
+    tags = ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',
         queryset=Tag.objects.all()
     )
 
     def is_favorited_method(self, queryset, name, value):
-        if self.request.user.is_anonymous:
-            return Recipe.objects.none()
-
-        favorites = Favorite.objects.filter(user=self.request.user)
-        recipes = [item.recipe.id for item in favorites]
-        new_queryset = queryset.filter(id__in=recipes)
-
-        if not strtobool(value):
-            return queryset.difference(new_queryset)
-
-        return queryset.filter(id__in=recipes)
+        if value:
+            return queryset.filter(favorite__user=self.request.user)
+        return queryset
 
     def is_in_shopping_cart_method(self, queryset, name, value):
-        if self.request.user.is_anonymous:
-            return Recipe.objects.none()
-
-        shopping_cart = ShoppingCart.objects.filter(user=self.request.user)
-        recipes = [item.recipe.id for item in shopping_cart]
-        new_queryset = queryset.filter(id__in=recipes)
-
-        if not strtobool(value):
-            return queryset.difference(new_queryset)
-
-        return queryset.filter(id__in=recipes)
+        if value:
+            return queryset.filter(sh_cart__user=self.request.user)
+        return queryset
 
     class Meta:
         model = Recipe

@@ -27,8 +27,6 @@ class CustomUserSerializer(UserSerializer):
         return Subscription.objects.filter(user=user, author=obj).exists()
 
 
-
-
 class CustomUserCreateSerializer(UserCreateSerializer):
     """При создании пользователя."""
 
@@ -71,5 +69,6 @@ class SubscriptionSerializer(CustomUserSerializer):
         return []
 
     def get_recipes_count(self, obj):
+        """Количество рецептов автора."""
         return Recipe.objects.filter(author=obj).count()
 

@@ -7,3 +7,4 @@ from .models import Ingredient
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'unit_of_measurement')
     search_fields = ('name',)
+    empty_value_display = '-пусто-'
