@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'django_filters',
     'users',
+    'api',
     'ingredients',
     'recipes',
     'tags',
@@ -155,7 +156,7 @@ REST_FRAMEWORK = {
     ],
     'SEARCH_PARAM': 'name',
     'DEFAULT_PAGINATION_CLASS':
-        'users.pagination.LimitPagination',
+        'api.pagination.LimitPagination',
     'PAGE_SIZE': 6,
 }
 
