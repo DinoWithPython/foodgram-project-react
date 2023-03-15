@@ -1,5 +1,7 @@
+import string
+
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -12,12 +14,6 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=150,
         unique=True,
-        validators=[
-            RegexValidator(
-                regex=r'^[\w.@+-]+$',
-                message='Не допускаются: пробел и символы, кроме . @ + - _',
-            ),
-        ]
     )
     first_name = models.CharField(
         max_length=150,
@@ -34,6 +30,19 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    def clean(self):
+        forbidden_characters= []
+        for symbol in self.username:
+            if (symbol in string.punctuation 
+                and symbol not in '.@+-_'):
+                forbidden_characters.append(symbol)
+            if symbol in string.whitespace:
+                forbidden_characters.append(symbol)
+        if len(forbidden_characters) != 0:
+            raise ValidationError(
+                f'Введены не допустимые символы: {"".join(forbidden_characters)}'
+                f'Не допускаются: пробел(перенос строки и т.п.) и символы, кроме . @ + - _')
 
 
 class Subscription(models.Model):
