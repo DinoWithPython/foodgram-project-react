@@ -14,7 +14,14 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "username", "first_name", "last_name", "email", "is_subscribed")
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "is_subscribed",
+        )
 
     def get_is_subscribed(self, obj):
         user = self.context.get("request").user
@@ -26,7 +33,14 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "username", "first_name", "last_name", "email", "password")
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+        )
 
 
 class SubscriptionSerializer(CustomUserSerializer, PageNumberPagination):
