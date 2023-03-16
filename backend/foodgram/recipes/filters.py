@@ -18,22 +18,20 @@ class RecipeFilter(FilterSet):
     )
 
 
-    def get_queryset(self, queryset, field):
-        
-        if field:
-            return queryset.filter(field__user=self.request.user)
+    def get_queryset(self, field, value):
+        field = self.request.query_params.get(field)
+        if value:
+            return self.get_queryset().filter(field__user=self.request.user)
         return self.get_queryset()
 
 
     def is_favorited_method(self, queryset, name, value):
-        if value:
-            return queryset.filter(favorite__user=self.request.user)
-        return queryset
+        self.get_queryset(field='favorite', value=value)
+
 
     def is_in_shopping_cart_method(self, queryset, name, value):
-        if value:
-            return queryset.filter(sh_cart__user=self.request.user)
-        return queryset
+        self.get_queryset(field='shopping_list', value=value)
+
 
     class Meta:
         model = Recipe
