@@ -36,14 +36,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if self.request.method == "POST":
             if model.objects.filter(user=user, recipe=recipe).exists():
-                raise exceptions.ValidationError(
-                    f"Рецепт уже {text_in_exception}."
-                )
+                raise exceptions.ValidationError(f"Рецепт уже {text_in_exception}.")
 
             model.objects.create(user=user, recipe=recipe)
-            serializer = ShortRecipeSerializer(
-                recipe, context={"request": request}
-            )
+            serializer = ShortRecipeSerializer(recipe, context={"request": request})
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -68,9 +64,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk=None):
         self.actions(request, ShoppingCart, "в списке покупок", pk=None)
 
-    @action(
-        detail=False, methods=("get",), permission_classes=(IsAuthenticated,)
-    )
+    @action(detail=False, methods=("get",), permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request):
         shopping_cart = ShoppingCart.objects.filter(user=self.request.user)
         recipes = [item.recipe.id for item in shopping_cart]
@@ -87,14 +81,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ingredient = Ingredient.objects.get(pk=item["ingredient"])
             amount = item["amount"]
             purchased.append(
-                f"{ingredient.name}: {amount}, "
-                f"{ingredient.unit_of_measurement}"
+                f"{ingredient.name}: {amount}, " f"{ingredient.unit_of_measurement}"
             )
         purchased_in_file = "\n".join(purchased)
 
         response = HttpResponse(purchased_in_file, content_type="text/plain")
-        response[
-            "Content-Disposition"
-        ] = "attachment; filename=shopping-list.txt"
+        response["Content-Disposition"] = "attachment; filename=shopping-list.txt"
 
         return response

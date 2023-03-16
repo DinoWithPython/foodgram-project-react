@@ -4,24 +4,51 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(help_text='Название тега', max_length=200, verbose_name='Название тега')),
-                ('color', models.CharField(help_text='Цвет для тега', max_length=7, verbose_name='Цвет для тега')),
-                ('slug', models.SlugField(help_text='Идентификатор тега', unique=True, verbose_name='Идентификатор тега')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Название тега",
+                        max_length=200,
+                        verbose_name="Название тега",
+                    ),
+                ),
+                (
+                    "color",
+                    models.CharField(
+                        help_text="Цвет для тега",
+                        max_length=7,
+                        verbose_name="Цвет для тега",
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(
+                        help_text="Идентификатор тега",
+                        unique=True,
+                        verbose_name="Идентификатор тега",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Тег',
-                'verbose_name_plural': 'Теги',
+                "verbose_name": "Тег",
+                "verbose_name_plural": "Теги",
             },
         ),
     ]

@@ -15,7 +15,7 @@ class RecipeTagsInLine(admin.TabularInline):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'text', 'pub_date', 'author')
-    search_fields = ('name', 'author')
+    list_display = ("id", "name", "text", "pub_date", "author")
+    search_fields = ("name", "author")
     inlines = (RecipeIngredientsInLine, RecipeTagsInLine)
-    empty_value_display = '-пусто-'
+    empty_value_display = "-пусто-"

@@ -39,9 +39,7 @@ class CustomUserViewSet(UserViewSet):
 
         if self.request.method == "POST":
             if user == author:
-                raise exceptions.ValidationError(
-                    "Невозможно подписаться на себя же."
-                )
+                raise exceptions.ValidationError("Невозможно подписаться на себя же.")
             if Subscription.objects.filter(user=user, author=author).exists():
                 raise exceptions.ValidationError("Подписка уже оформлена.")
 
@@ -51,16 +49,12 @@ class CustomUserViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == "DELETE":
-            if not Subscription.objects.filter(
-                user=user, author=author
-            ).exists():
+            if not Subscription.objects.filter(user=user, author=author).exists():
                 raise exceptions.ValidationError(
                     "Подписка не была оформлена, либо уже отменена."
                 )
 
-            subscription = get_object_or_404(
-                Subscription, user=user, author=author
-            )
+            subscription = get_object_or_404(Subscription, user=user, author=author)
             subscription.delete()
 
             return Response(status=status.HTTP_204_NO_CONTENT)

@@ -68,16 +68,12 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
-    tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(), many=True
-    )
+    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
     ingredients = CreateUpdateRecipeIngredientsSerializer(many=True)
     image = Base64ImageField()
     cooking_time = serializers.IntegerField(
         validators=(
-            MinValueValidator(
-                1, message="Время приготовления не может быть меньше 1!"
-            ),
+            MinValueValidator(1, message="Время приготовления не может быть меньше 1!"),
         )
     )
 
@@ -89,9 +85,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, value):
         if not value:
-            raise exceptions.ValidationError(
-                "Добавьте хотя бы один ингредиент!"
-            )
+            raise exceptions.ValidationError("Добавьте хотя бы один ингредиент!")
 
         ingredients = [item["id"] for item in value]
         for ingredient in ingredients:
