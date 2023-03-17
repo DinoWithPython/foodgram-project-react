@@ -1,14 +1,114 @@
 from django.core.validators import MinValueValidator
 from django.shortcuts import get_object_or_404
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import exceptions, serializers
 
-from .models import Favorite, Recipe, RecipeIngredients, ShoppingCart
-from ingredients.models import Ingredient
+from users.models import Subscription
+from recipes.models import Recipe
+from users.models import User
+from tags.models import Tag
+from api.pagination import PageNumberPagination
+
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredients,
+    ShoppingCart,
+)
 from tags.models import Tag
 from users.models import User
-from tags.serializers import TagSerializer
-from users.serializers import CustomUserSerializer
+
+
+class CustomUserSerializer(UserSerializer):
+    """Проверка подписки."""
+
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "is_subscribed",
+        )
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get("request").user
+        return Subscription.objects.filter(user=user, author=obj).exists()
+
+
+class CustomUserCreateSerializer(UserCreateSerializer):
+    """При создании пользователя."""
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+        )
+
+
+class SubscriptionSerializer(CustomUserSerializer, PageNumberPagination):
+    """Подписка на рецепты."""
+
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "is_subscribed",
+            "recipes",
+            "recipes_count",
+        )
+
+    def get_recipes(self, obj):
+        """Получение списка рецептов автора."""
+        from recipes.serializers import ShortRecipeSerializer
+
+        author_recipes = Recipe.objects.filter(author=obj)
+
+        if author_recipes:
+            serializer = ShortRecipeSerializer(
+                author_recipes,
+                context={"request": self.context.get("request")},
+                many=True,
+            )
+            return self.get_paginated_response(serializer.data)
+
+        return []
+
+    def get_recipes_count(self, obj):
+        """Количество рецептов автора."""
+        return Recipe.objects.filter(author=obj).count()
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = "__all__"
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    """Для ингредиентов."""
+
+    class Meta:
+        model = Ingredient
+        fields = "__all__"
 
 
 class RecipeIngredientsSerializer(serializers.ModelSerializer):
@@ -68,12 +168,16 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True
+    )
     ingredients = CreateUpdateRecipeIngredientsSerializer(many=True)
     image = Base64ImageField()
     cooking_time = serializers.IntegerField(
         validators=(
-            MinValueValidator(1, message="Время приготовления не может быть меньше 1!"),
+            MinValueValidator(
+                1, message="Время приготовления не может быть меньше 1!"
+            ),
         )
     )
 
@@ -85,7 +189,9 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, value):
         if not value:
-            raise exceptions.ValidationError("Добавьте хотя бы один ингредиент!")
+            raise exceptions.ValidationError(
+                "Добавьте хотя бы один ингредиент!"
+            )
 
         ingredients = [item["id"] for item in value]
         for ingredient in ingredients:

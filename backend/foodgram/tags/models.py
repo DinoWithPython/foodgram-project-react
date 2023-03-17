@@ -1,6 +1,6 @@
 from django.db import models
 
-from .validators import validate_color
+from tags.validators import validate_color
 
 
 class Tag(models.Model):

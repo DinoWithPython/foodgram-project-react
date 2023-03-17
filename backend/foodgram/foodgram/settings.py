@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     "django_filters",
     "users",
     "api",
-    "ingredients",
     "recipes",
     "tags",
 ]
@@ -91,7 +90,9 @@ WSGI_APPLICATION = "foodgram.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": os.getenv("DB_ENGINE", default="django.db.backends.postgresql"),
+        "ENGINE": os.getenv(
+            "DB_ENGINE", default="django.db.backends.postgresql"
+        ),
         "NAME": os.getenv("DB_NAME", default="foodgram"),
         "USER": os.getenv("POSTGRES_USER", default="foodgram_user"),
         "PASSWORD": os.getenv(

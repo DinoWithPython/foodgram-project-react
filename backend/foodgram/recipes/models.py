@@ -1,10 +1,35 @@
-from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from ingredients.models import Ingredient
 from tags.models import Tag
 from users.models import User
+
+
+class Ingredient(models.Model):
+    name = models.CharField(
+        max_length=80,
+        verbose_name="Название ингредиента",
+        help_text="Название ингредиента",
+    )
+    unit_of_measurement = models.CharField(
+        max_length=15,
+        verbose_name="Единица измерения ингредиента",
+        help_text="Единица измерения ингредиента",
+    )
+
+    class Meta:
+        verbose_name = "Ингредиент"
+        verbose_name_plural = "Ингредиенты"
+
+        constraints = (
+            models.UniqueConstraint(
+                fields=("name", "unit_of_measurement"),
+                name="unique_ingredient",
+            ),
+        )
+
+    def __str__(self):
+        return self.name
 
 
 class Recipe(models.Model):
@@ -62,7 +87,9 @@ class Recipe(models.Model):
 
 
 class RecipeIngredients(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name="Рецепт")
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE, verbose_name="Рецепт"
+    )
     ingredient = models.ForeignKey(
         Ingredient, on_delete=models.PROTECT, verbose_name="Ингредиент"
     )
@@ -80,7 +107,9 @@ class RecipeIngredients(models.Model):
 
 
 class RecipeTags(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name="Рецепт")
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE, verbose_name="Рецепт"
+    )
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE, verbose_name="Тег")
 
     class Meta:
@@ -99,7 +128,10 @@ class Favorite(models.Model):
         verbose_name="Пользователь",
     )
     recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE, related_name="favorite", verbose_name="Рецепт"
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name="favorite",
+        verbose_name="Рецепт",
     )
 
     class Meta:
@@ -141,4 +173,6 @@ class ShoppingCart(models.Model):
         )
 
     def __str__(self):
-        return f"Рецепт {self.recipe} в списке покупок у пользователя {self.user}"
+        return (
+            f"Рецепт {self.recipe} в списке покупок у пользователя {self.user}"
+        )
