@@ -2,9 +2,13 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
 from rest_framework import exceptions, filters, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 
 from tags.models import Tag
@@ -15,15 +19,72 @@ from recipes.models import (
     RecipeIngredients,
     ShoppingCart,
 )
+from users.models import Subscription, User
 from api.serializers import (
     IngredientSerializer,
     RecipeCreateUpdateSerializer,
     RecipeSerializer,
     ShortRecipeSerializer,
+    SubscriptionSerializer,
     TagSerializer,
 )
 from api.filters import RecipeFilter
 from api.permissions import IsAdminAuthorOrReadOnly
+
+
+class CustomUserViewSet(UserViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    @action(
+        detail=False,
+        methods=("get",),
+        serializer_class=SubscriptionSerializer,
+        permission_classes=(IsAuthenticated,),
+    )
+    def subscriptions(self, request):
+        user = self.request.user
+        queryset = user.follower.all()
+        serializer = self.get_serializer(queryset, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    @action(
+        detail=True,
+        methods=("post", "delete"),
+        serializer_class=SubscriptionSerializer,
+    )
+    def subscribe(self, request, id=None):
+        user = self.request.user
+        author = get_object_or_404(User, pk=id)
+
+        if self.request.method == "POST":
+            if user == author:
+                raise exceptions.ValidationError(
+                    "Невозможно подписаться на себя же."
+                )
+            if Subscription.objects.filter(user=user, author=author).exists():
+                raise exceptions.ValidationError("Подписка уже оформлена.")
+
+            Subscription.objects.create(user=user, author=author)
+            serializer = self.get_serializer(author)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if self.request.method == "DELETE":
+            if not Subscription.objects.filter(
+                user=user, author=author
+            ).exists():
+                raise exceptions.ValidationError(
+                    "Подписка не была оформлена, либо уже отменена."
+                )
+
+            subscription = get_object_or_404(
+                Subscription, user=user, author=author
+            )
+            subscription.delete()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
