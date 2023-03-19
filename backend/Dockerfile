@@ -1,4 +1,5 @@
 FROM python:3.7-slim
+
 WORKDIR /app_back
 COPY requirements.txt /app_back/
 RUN pip3 install -r requirements.txt --no-cache-dir
