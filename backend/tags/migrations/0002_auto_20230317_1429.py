@@ -5,15 +5,19 @@ import tags.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tags', '0001_initial'),
+        ("tags", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='tag',
-            name='color',
-            field=models.CharField(help_text='Цвет для тега', max_length=7, validators=[tags.validators.validate_color], verbose_name='Цвет для тега'),
+            model_name="tag",
+            name="color",
+            field=models.CharField(
+                help_text="Цвет для тега",
+                max_length=7,
+                validators=[tags.validators.validate_color],
+                verbose_name="Цвет для тега",
+            ),
         ),
     ]

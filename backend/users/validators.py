@@ -10,5 +10,6 @@ def validate_username(value):
     if len(forbidden_characters) != 0:
         raise ValidationError(
             f'Введены не допустимые символы: {forbidden_characters}'
-            f"Не допускаются: пробел(перенос строки и т.п.) и символы, кроме . @ + - _"
+            f'Не допускаются: пробел(перенос строки и т.п.)'
+            ' и символы, кроме . @ + - _'
         )

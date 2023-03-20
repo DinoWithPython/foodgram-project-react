@@ -4,7 +4,6 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import exceptions, serializers
 
-from recipes.models import Recipe
 from tags.models import Tag
 from recipes.models import (
     Favorite,
@@ -13,7 +12,6 @@ from recipes.models import (
     RecipeIngredients,
     ShoppingCart,
 )
-from tags.models import Tag
 from users.models import Subscription, User
 from api.pagination import PageNumberPagination
 
