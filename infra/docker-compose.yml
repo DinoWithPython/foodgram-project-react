@@ -2,7 +2,7 @@ version: '3.3'
 services:
 
   frontend:
-    mage: lunarbirdmyt/foodgram_frontend:latest
+    image: lunarbirdmyt/foodgram-frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
   db:
@@ -12,7 +12,7 @@ services:
     env_file:
       - ./.env
   backend:
-    image: lunarbirdmyt/foodgram_backend:latest
+    image: lunarbirdmyt/foodgram-backend:latest
     restart: always
     volumes:
       - static_value:/app_back/static/
