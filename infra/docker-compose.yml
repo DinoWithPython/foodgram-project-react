@@ -1,16 +1,14 @@
 version: '3.3'
 services:
 
-  frontend:
-    image: lunarbirdmyt/foodgram-frontend:latest
-    volumes:
-      - ../frontend/:/app/result_build/
+
   db:
     image: postgres:13.0-alpine
     volumes:
       - pgdata:/var/lib/postgresql/data/
     env_file:
       - ./.env
+
   backend:
     image: lunarbirdmyt/foodgram-backend:latest
     restart: always
@@ -21,6 +19,12 @@ services:
       - db
     env_file:
       - ./.env
+
+  frontend:
+    image: lunarbirdmyt/foodgram-frontend:latest
+    volumes:
+      - ../frontend/:/app/result_build/
+
   nginx:
     image: nginx:1.19.3
     ports:
