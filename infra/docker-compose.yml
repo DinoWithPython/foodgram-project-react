@@ -4,6 +4,7 @@ services:
 
   db:
     image: postgres:13.0-alpine
+    container_name: database_foodgram
     volumes:
       - pgdata:/var/lib/postgresql/data/
     env_file:
@@ -11,6 +12,7 @@ services:
 
   backend:
     image: lunarbirdmyt/foodgram-backend:latest
+    container_name: backend_foodgram
     restart: always
     volumes:
       - static_value:/app_back/static/
@@ -22,11 +24,13 @@ services:
 
   frontend:
     image: lunarbirdmyt/foodgram-frontend:latest
+    container_name: frontend_foodgram
     volumes:
       - ../frontend/:/app/result_build/
 
   nginx:
     image: nginx:1.19.3
+    container_name: nginx_foodgram
     ports:
       - "80:80"
     volumes:
