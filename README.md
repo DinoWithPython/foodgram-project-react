@@ -45,7 +45,7 @@ docker-compose exec backend python manage.py createsuperuser
 С проектом поставляются данные об ингредиентах.  
 Заполнить базу данных ингредиентами можно выполнив следующую команду из папки "./infra/":
 ```bash
-docker-compose exec backend python manage.py fill_ingredients_from_csv --path data/
+docker-compose exec backend python manage.py get_of_ingredients --path data/
 ```
 
 8. Теги вручную добавляются в админ-зоне в модель Tags;
