@@ -206,8 +206,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         recipe.tags.set(tags)
 
         for ingredient in ingredients:
-            amount = ingredient["amount"]
-            ingredient = get_object_or_404(Ingredient, pk=ingredient["id"])
+            amount = ingredient.get("amount")
+            ingredient = get_object_or_404(Ingredient, pk=ingredient.get("id"))
 
             RecipeIngredients.objects.create(
                 recipe=recipe, ingredient=ingredient, amount=amount
@@ -225,8 +225,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             instance.ingredients.clear()
 
             for ingredient in ingredients:
-                amount = ingredient["amount"]
-                ingredient = get_object_or_404(Ingredient, pk=ingredient["id"])
+                amount = ingredient.get("amount")
+                ingredient = get_object_or_404(Ingredient, pk=ingredient.get("id"))
 
                 RecipeIngredients.objects.update_or_create(
                     recipe=instance,
