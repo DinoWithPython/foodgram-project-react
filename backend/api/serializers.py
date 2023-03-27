@@ -33,8 +33,9 @@ class CustomUserSerializer(UserSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        user = self.context.get("request").user
-        return Subscription.objects.filter(user=user, author=obj).exists()
+        user_id = self.context.get('request').user.id
+        return Subscription.objects.filter(
+            author=obj.id, user=user_id).exists()
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -146,15 +147,15 @@ class RecipeSerializer(serializers.ModelSerializer):
 
         return serializer.data
 
-    def get_queryset(self, model):
+    def get_queryset(self, model, obj):
         user = self.context["request"].user
-        return model.objects.filter(user=user, recipe=model).exists()
+        return model.objects.filter(user=user, recipe=obj).exists()
 
     def get_is_favorited(self, obj):
-        return self.get_queryset(model=Favorite)
+        return self.get_queryset(model=Favorite, obj=obj)
 
     def get_is_in_shopping_cart(self, obj):
-        return self.get_queryset(obmodelj=ShoppingCart)
+        return self.get_queryset(model=ShoppingCart, obj=obj)
 
     class Meta:
         model = Recipe
@@ -207,7 +208,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
         for ingredient in ingredients:
             amount = ingredient.get("amount")
-            ingredient = get_object_or_404(Ingredient, pk=ingredient.get("id"))
+            ingredient = get_object_or_404(Ingredient, pk=ingredient.get("id").id)
 
             RecipeIngredients.objects.create(
                 recipe=recipe, ingredient=ingredient, amount=amount
