@@ -232,7 +232,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 amount = ingredient.get("amount")
                 ingredient = get_object_or_404(
                     Ingredient,
-                    pk=ingredient.get("id")
+                    pk=ingredient.get("id").id
                 )
 
                 RecipeIngredients.objects.update_or_create(

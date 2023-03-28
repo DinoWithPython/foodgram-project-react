@@ -38,44 +38,51 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=False,
         methods=("get",),
-        serializer_class=SubscriptionSerializer,
         permission_classes=(IsAuthenticated,),
     )
     def subscriptions(self, request):
+        """Список авторов, на которых подписан пользователь."""
         user = self.request.user
         queryset = user.follower.all()
-        serializer = self.get_serializer(queryset, many=True)
+        pages = self.paginate_queryset(queryset)
+        serializer = SubscriptionSerializer(
+            pages, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True,
         methods=("post", "delete"),
-        serializer_class=SubscriptionSerializer,
     )
     def subscribe(self, request, id=None):
+        """Подписка на автора."""
         user = self.request.user
         author = get_object_or_404(User, pk=id)
 
+        if user == author:
+            return Response(
+                {"errors": "Нельзя подписаться или отписаться от себя!"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         if self.request.method == "POST":
-            if user == author:
-                raise exceptions.ValidationError(
-                    "Невозможно подписаться на себя же."
-                )
             if Subscription.objects.filter(user=user, author=author).exists():
-                raise exceptions.ValidationError("Подписка уже оформлена.")
+                return Response(
+                    {"errors": "Подписка уже оформлена!"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-            Subscription.objects.create(user=user, author=author)
-            serializer = self.get_serializer(author)
-
+            queryset = Subscription.objects.create(author=author, user=user)
+            serializer = SubscriptionSerializer(
+                queryset, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == "DELETE":
             if not Subscription.objects.filter(
                 user=user, author=author
             ).exists():
-                raise exceptions.ValidationError(
-                    "Подписка не была оформлена, либо уже отменена."
-                )
+                return Response(
+                    {'errors': 'Вы уже отписаны!'},
+                    status=status.HTTP_400_BAD_REQUEST)
 
             subscription = get_object_or_404(
                 Subscription, user=user, author=author
