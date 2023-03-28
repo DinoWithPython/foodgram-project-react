@@ -49,3 +49,7 @@ docker-compose exec backend python manage.py get_of_ingredients --path data/
 ```
 
 8. Теги вручную добавляются в админ-зоне в модель Tags;
+
+
+адрес сервера: http://158.160.23.100
+Админ по классике admin admin
