@@ -138,7 +138,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     tags = TagSerializer(many=True)
     ingredients = serializers.SerializerMethodField()
-    favorited = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
     def get_ingredients(self, obj):
@@ -151,7 +151,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         return model.objects.filter(user=user, recipe=obj).exists()
 
-    def get_favorited(self, obj):
+    def get_is_favorited(self, obj):
         return self.get_queryset(model=Favorite, obj=obj)
 
     def get_is_in_shopping_cart(self, obj):

@@ -8,7 +8,7 @@ from users.models import User
 
 
 class RecipeFilter(FilterSet):
-    is_favorited = filters.BooleanFilter()
+    favorited = filters.BooleanFilter()
     is_in_shopping_cart = filters.BooleanFilter()
     author = filters.ModelChoiceFilter(queryset=User.objects.all())
     tags = ModelMultipleChoiceFilter(
@@ -23,7 +23,7 @@ class RecipeFilter(FilterSet):
             return self.get_queryset().filter(field__user=self.request.user)
         return self.get_queryset()
 
-    def is_favorited_method(self, queryset, name, value):
+    def favorited_method(self, queryset, name, value):
         self.get_queryset(field="favorite", value=value)
 
     def is_in_shopping_cart_method(self, queryset, name, value):
