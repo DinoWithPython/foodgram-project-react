@@ -17,7 +17,6 @@ class RecipeFilter(FilterSet):
         queryset=Tag.objects.all(),
     )
 
-
     def is_favorited_method(self, queryset, name, value):
         if value:
             return queryset.filter(favorite__user=self.request.user)
