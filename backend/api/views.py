@@ -123,35 +123,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         return RecipeSerializer
 
-    def actions(self, request, model, text_in_exception, pk=None):
-        user = self.request.user
-        recipe = get_object_or_404(model, pk=pk)
-
-        if self.request.method == "POST":
-            if model.objects.filter(user=user, recipe=recipe).exists():
-                raise exceptions.ValidationError(
-                    f"Рецепт уже {text_in_exception}."
-                )
-
-            model.objects.create(user=user, recipe=recipe)
-            serializer = ShortRecipeSerializer(
-                recipe, context={"request": request}
+    def add(self, model, user, pk, name):
+        """Добавление рецепта."""
+        recipe = get_object_or_404(Recipe, pk=pk)
+        relation = model.objects.filter(user=user, recipe=recipe)
+        if relation.exists():
+            return Response(
+                {"errors": f"Нельзя повторно добавить рецепт в {name}"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
+        model.objects.create(user=user, recipe=recipe)
+        serializer = ShortRecipeSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        if self.request.method == "DELETE":
-            if not model.objects.filter(user=user, recipe=recipe).exists():
-                raise exceptions.ValidationError(
-                    f"Рецепта нет {text_in_exception}, либо он удален."
-                )
-
-            obj = get_object_or_404(model, user=user, recipe=recipe)
-            obj.delete()
-
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def delete_relation(self, model, user, pk, name):
+        """ "Удаление рецепта из списка пользователя."""
+        recipe = get_object_or_404(Recipe, pk=pk)
+        relation = model.objects.filter(user=user, recipe=recipe)
+        if not relation.exists():
+            return Response(
+                {"errors": f"Нельзя повторно удалить рецепт из {name}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        relation.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=True,
@@ -160,7 +155,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_name="favorite",
     )
     def favorite(self, request, pk=None):
-        self.actions(request, Favorite, "в избранном", pk=None)
+        """Добавление и удаление рецептов из избранного."""
+        user = request.user
+        if request.method == "POST":
+            name = "избранное"
+            return self.add(Favorite, user, pk, name)
+        if request.method == "DELETE":
+            name = "избранного"
+            return self.delete_relation(Favorite, user, pk, name)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(
         detail=True,
@@ -169,7 +172,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_name="shopping_cart",
     )
     def shopping_cart(self, request, pk=None):
-        self.actions(request, ShoppingCart, "в списке покупок", pk=None)
+        """Добавление и удаление рецептов из списока покупок."""
+        user = request.user
+        if request.method == "POST":
+            name = "список покупок"
+            return self.add(ShoppingCart, user, pk, name)
+        if request.method == "DELETE":
+            name = "списка покупок"
+            return self.delete_relation(ShoppingCart, user, pk, name)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(
         detail=False,

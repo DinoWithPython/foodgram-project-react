@@ -33,9 +33,10 @@ class CustomUserSerializer(UserSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        user_id = self.context.get('request').user.id
+        user_id = self.context.get("request").user.id
         return Subscription.objects.filter(
-            author=obj.id, user=user_id).exists()
+            author=obj.id, user=user_id
+        ).exists()
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -149,15 +150,15 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         """Добавлен ли рецепт в избранное."""
-        user_id = self.context.get('request').user.id
-        return Favorite.objects.filter(
-            user=user_id, recipe=obj.id).exists()
+        user_id = self.context.get("request").user.id
+        return Favorite.objects.filter(user=user_id, recipe=obj.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
         """Добавлен ли рецепт в список покупок."""
-        user_id = self.context.get('request').user.id
+        user_id = self.context.get("request").user.id
         return ShoppingCart.objects.filter(
-            user=user_id, recipe=obj.id).exists()
+            user=user_id, recipe=obj.id
+        ).exists()
 
     class Meta:
         model = Recipe
@@ -211,8 +212,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             amount = ingredient.get("amount")
             ingredient = get_object_or_404(
-                Ingredient,
-                pk=ingredient.get("id").id
+                Ingredient, pk=ingredient.get("id").id
             )
 
             RecipeIngredients.objects.create(
@@ -233,8 +233,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             for ingredient in ingredients:
                 amount = ingredient.get("amount")
                 ingredient = get_object_or_404(
-                    Ingredient,
-                    pk=ingredient.get("id").id
+                    Ingredient, pk=ingredient.get("id").id
                 )
 
                 RecipeIngredients.objects.update_or_create(
@@ -255,10 +254,17 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'id', 'tags', 'author', 'ingredients', 'is_favorited',
-            'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time'
+            "id",
+            "tags",
+            "author",
+            "ingredients",
+            "is_favorited",
+            "is_in_shopping_cart",
+            "name",
+            "image",
+            "text",
+            "cooking_time",
         )
-        exclude = ("pub_date",)
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
