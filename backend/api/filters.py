@@ -9,7 +9,9 @@ from users.models import User
 
 class RecipeFilter(FilterSet):
     is_favorited = filters.BooleanFilter(method='favorited_method')
-    is_in_shopping_cart = filters.BooleanFilter(method='in_shopping_cart_method')
+    is_in_shopping_cart = filters.BooleanFilter(
+        method='in_shopping_cart_method'
+        )
     author = filters.ModelChoiceFilter(queryset=User.objects.all())
     tags = ModelMultipleChoiceFilter(
         field_name="tags__slug",
