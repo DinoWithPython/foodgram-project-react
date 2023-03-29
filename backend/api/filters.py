@@ -8,8 +8,8 @@ from users.models import User
 
 
 class RecipeFilter(FilterSet):
-    is_favorited = filters.BooleanFilter()
-    is_in_shopping_cart = filters.BooleanFilter()
+    is_favorited = filters.BooleanFilter(method='filter_favorited')
+    is_in_shopping_cart = filters.BooleanFilter(method='filter_shopping_cart')
     author = filters.ModelChoiceFilter(queryset=User.objects.all())
     tags = ModelMultipleChoiceFilter(
         field_name="tags__slug",
@@ -17,12 +17,12 @@ class RecipeFilter(FilterSet):
         queryset=Tag.objects.all(),
     )
 
-    def is_favorited_method(self, queryset, name, value):
+    def favorited_method(self, queryset, name, value):
         if value:
             return queryset.filter(favorite__user=self.request.user)
         return queryset
 
-    def is_in_shopping_cart_method(self, queryset, name, value):
+    def in_shopping_cart_method(self, queryset, name, value):
         if value:
             return queryset.filter(shopping_list__user=self.request.user)
         return queryset
