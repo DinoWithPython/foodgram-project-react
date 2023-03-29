@@ -44,8 +44,9 @@ class CustomUserViewSet(UserViewSet):
         """Список авторов, на которых подписан пользователь."""
         user = self.request.user
         queryset = user.follower.all()
+        pages = self.paginate_queryset(queryset)
         serializer = SubscriptionSerializer(
-            queryset, many=True, context={"request": request}
+            pages, many=True, context={"request": request}
         )
         return self.get_paginated_response(serializer.data)
 

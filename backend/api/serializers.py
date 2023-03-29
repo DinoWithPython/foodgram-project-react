@@ -68,7 +68,7 @@ class SubscriptionSerializer(CustomUserSerializer, PageNumberPagination):
         """Получение списка рецептов автора."""
         from api.serializers import ShortRecipeSerializer
 
-        author_recipes = obj.author.recipes.all()
+        author_recipes = Recipe.objects.filter(author=obj)
 
         if author_recipes:
             serializer = ShortRecipeSerializer(
