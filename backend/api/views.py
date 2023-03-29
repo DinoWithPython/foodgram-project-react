@@ -46,7 +46,8 @@ class CustomUserViewSet(UserViewSet):
         queryset = user.follower.all()
         pages = self.paginate_queryset(queryset)
         serializer = SubscriptionSerializer(
-            pages, many=True, context={'request': request})
+            pages, many=True, context={"request": request}
+        )
         return self.get_paginated_response(serializer.data)
 
     @action(
@@ -61,19 +62,20 @@ class CustomUserViewSet(UserViewSet):
         if user == author:
             return Response(
                 {"errors": "Нельзя подписаться или отписаться от себя!"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         if self.request.method == "POST":
             if Subscription.objects.filter(user=user, author=author).exists():
                 return Response(
                     {"errors": "Подписка уже оформлена!"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
             queryset = Subscription.objects.create(author=author, user=user)
             serializer = SubscriptionSerializer(
-                queryset, context={'request': request})
+                queryset, context={"request": request}
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == "DELETE":
@@ -81,8 +83,9 @@ class CustomUserViewSet(UserViewSet):
                 user=user, author=author
             ).exists():
                 return Response(
-                    {'errors': 'Вы уже отписаны!'},
-                    status=status.HTTP_400_BAD_REQUEST)
+                    {"errors": "Вы уже отписаны!"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             subscription = get_object_or_404(
                 Subscription, user=user, author=author
@@ -151,20 +154,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(
-            detail=True,
-            methods=("post", "delete"),
-            url_path='favorite',
-            url_name='favorite'
-        )
+        detail=True,
+        methods=("post", "delete"),
+        url_path="favorite",
+        url_name="favorite",
+    )
     def favorite(self, request, pk=None):
         self.actions(request, Favorite, "в избранном", pk=None)
 
     @action(
-            detail=True,
-            methods=("post", "delete"),
-            url_path='shopping_cart',
-            url_name='shopping_cart'
-        )
+        detail=True,
+        methods=("post", "delete"),
+        url_path="shopping_cart",
+        url_name="shopping_cart",
+    )
     def shopping_cart(self, request, pk=None):
         self.actions(request, ShoppingCart, "в списке покупок", pk=None)
 
@@ -172,9 +175,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         detail=False,
         methods=("get",),
         permission_classes=(IsAuthenticated,),
-        url_path='download_shopping_cart',
-        url_name='download_shopping_cart'
-        )
+        url_path="download_shopping_cart",
+        url_name="download_shopping_cart",
+    )
     def download_shopping_cart(self, request):
         shopping_cart = ShoppingCart.objects.filter(user=self.request.user)
         recipes = [item.recipe.id for item in shopping_cart]
