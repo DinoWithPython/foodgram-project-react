@@ -150,17 +150,31 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @action(detail=True, methods=("post", "delete"))
+    @action(
+            detail=True,
+            methods=("post", "delete"),
+            url_path='favorite',
+            url_name='favorite'
+        )
     def favorite(self, request, pk=None):
         self.actions(request, Favorite, "в избранном", pk=None)
 
-    @action(detail=True, methods=("post", "delete"))
+    @action(
+            detail=True,
+            methods=("post", "delete"),
+            url_path='shopping_cart',
+            url_name='shopping_cart'
+        )
     def shopping_cart(self, request, pk=None):
         self.actions(request, ShoppingCart, "в списке покупок", pk=None)
 
     @action(
-        detail=False, methods=("get",), permission_classes=(IsAuthenticated,)
-    )
+        detail=False,
+        methods=("get",),
+        permission_classes=(IsAuthenticated,),
+        url_path='download_shopping_cart',
+        url_name='download_shopping_cart'
+        )
     def download_shopping_cart(self, request):
         shopping_cart = ShoppingCart.objects.filter(user=self.request.user)
         recipes = [item.recipe.id for item in shopping_cart]
