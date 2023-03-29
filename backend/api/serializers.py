@@ -55,7 +55,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 class SubscriptionSerializer(CustomUserSerializer, PageNumberPagination):
-    """Подписка на рецепты."""
+    """Подписка."""
 
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
@@ -64,7 +64,6 @@ class SubscriptionSerializer(CustomUserSerializer, PageNumberPagination):
         model = User
         fields = (
             "id",
-            "username",
             "first_name",
             "last_name",
             "email",
