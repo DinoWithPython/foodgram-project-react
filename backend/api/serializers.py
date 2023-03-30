@@ -56,13 +56,14 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 class SubscriptionSerializer(CustomUserSerializer, PageNumberPagination):
     """Подписка."""
-    email = serializers.ReadOnlyField(source='author.email')
-    id = serializers.ReadOnlyField(source='author.id')
-    username = serializers.ReadOnlyField(source='author.username')
-    first_name = serializers.ReadOnlyField(source='author.first_name')
-    last_name = serializers.ReadOnlyField(source='author.last_name')
+
+    email = serializers.ReadOnlyField(source="author.email")
+    id = serializers.ReadOnlyField(source="author.id")
+    username = serializers.ReadOnlyField(source="author.username")
+    first_name = serializers.ReadOnlyField(source="author.first_name")
+    last_name = serializers.ReadOnlyField(source="author.last_name")
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.ReadOnlyField(source='author.recipes.count')
+    recipes_count = serializers.ReadOnlyField(source="author.recipes.count")
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -82,7 +83,8 @@ class SubscriptionSerializer(CustomUserSerializer, PageNumberPagination):
         """Получение списка рецептов автора."""
         from api.serializers import ShortRecipeSerializer
 
-        author_recipes = Recipe.objects.filter(author=obj.id)
+        # author_recipes = Recipe.objects.filter(author=obj.id)
+        author_recipes = obj.author.recipes.all()
 
         if author_recipes:
             serializer = ShortRecipeSerializer(
