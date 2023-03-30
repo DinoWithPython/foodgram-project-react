@@ -61,14 +61,14 @@ class SubscriptionSerializer(CustomUserSerializer, PageNumberPagination):
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = Subscription
         fields = "__all__"
 
     def get_recipes(self, obj):
         """Получение списка рецептов автора."""
         from api.serializers import ShortRecipeSerializer
 
-        author_recipes = Recipe.objects.filter(author=obj)
+        author_recipes = Recipe.objects.filter(author=obj.id)
 
         if author_recipes:
             serializer = ShortRecipeSerializer(
@@ -76,13 +76,13 @@ class SubscriptionSerializer(CustomUserSerializer, PageNumberPagination):
                 context={"request": self.context.get("request")},
                 many=True,
             )
-            return self.get_paginated_response(serializer.data)
+            return serializer.data
 
         return []
 
     def get_recipes_count(self, obj):
         """Количество рецептов автора."""
-        return Recipe.objects.filter(author=obj).count()
+        return Recipe.objects.filter(author=obj.id).count()
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -244,7 +244,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        exclude = ('pub_date',)
+        exclude = ("pub_date",)
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
