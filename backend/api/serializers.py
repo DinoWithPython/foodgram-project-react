@@ -62,7 +62,16 @@ class SubscriptionSerializer(CustomUserSerializer, PageNumberPagination):
 
     class Meta:
         model = Subscription
-        fields = "__all__"
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "is_subscribed",
+            "recipes",
+            "recipes_count",
+        )
 
     def get_recipes(self, obj):
         """Получение списка рецептов автора."""
