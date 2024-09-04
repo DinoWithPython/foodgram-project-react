@@ -1,4 +1,3 @@
-# Предварительное описание. Проект дорабатывается, во время второго этапа проверки примет финальный вид. Команды могут измениться.
 # "Продуктовый помощник" (Foodgram)
 ![foodgram_workflow](https://github.com/LunarBirdMYT/foodgram-project-react/workflows/foodgram_workflow/badge.svg)
 ### Описание:
@@ -51,5 +50,5 @@ docker-compose exec backend python manage.py get_of_ingredients --path data/
 8. Теги вручную добавляются в админ-зоне в модель Tags;
 
 
-адрес сервера: http://158.160.23.100
+адрес сервера: проект не активен
 Админ по классике admin admin
